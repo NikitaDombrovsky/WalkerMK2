@@ -20,15 +20,7 @@
 
 ## Запуск
 
-Открыть `index.html` в браузере. Для корректной загрузки `questions.json` нужен локальный сервер (из-за CORS):
-
-```bash
-# Python
-python3 -m http.server 8080
-
-# Node.js (npx)
-npx serve .
-```
+Открыть `index.html` в браузере. 
 
 Затем открыть `http://localhost:8080`.
 
