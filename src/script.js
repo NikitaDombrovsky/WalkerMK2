@@ -94,7 +94,6 @@ function showQuestion(category) {
         const cfg = config[category];
         badge.textContent = cfg.label;
         badge.style.background = cfg.color;
-        rules.textContent = cfg.rule;
         text.textContent = q ? q.question : '(Вопросы не загружены — добавьте их в questions.json)';
 
         modal.style.display = 'flex';
