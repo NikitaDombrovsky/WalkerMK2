@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Падающие круги</title>
+    <link rel="stylesheet" href="assets/styles/style.css">
+</head>
+
+<body>
+    <div class="controls">
+        <div class="player-info">Ход игрока: <span id="currentPlayer">1</span></div>
+        <input type="number" id="stepsInput" min="1" max="500" placeholder="Количество шагов">
+        <div id="stepsButtons">
+            <button onclick="setSteps(1)">+1</button>
+            <button onclick="setSteps(2)">+2</button>
+            <button onclick="setSteps(3)">+3</button>
+            <button onclick="setSteps(4)">+4</button>
+            <button onclick="setSteps(5)">+5</button>
+            <button onclick="setSteps(6)">+6</button>
+            <button onclick="setSteps(7)">+7</button>
+            <button onclick="setSteps(8)">+8</button>
+            <button onclick="setSteps(9)">+9</button>
+            <button onclick="setSteps(10)">+10</button>
+            <button onclick="setSteps(11)">+11</button>
+            <button onclick="setSteps(12)">+12</button>
+        </div>
+        <button onclick="rollDice()" class="dice-button">🎲 Бросить кубик</button>
+        <button onclick="movePlayer()">Вперёд</button>
+        <button onclick="movePlayerBackward()" class="backward-button">Назад</button>
+        <button onclick="skipTurn()" class="skip-button">Пропустить ход</button>
+        <button onclick="resetGame()" class="reset-button">Новая игра</button>
+        <button onclick="togglePlayerMenu()" class="players-menu-button">Управление игроками</button>
+        <button onclick="toggleSettings()" class="settings-button">Настройки</button>
+    </div>
+    <div id="circles-container">
+        <div id="player1" class="player player1"></div>
+        <div id="player2" class="player player2"></div>
+        <div id="player3" class="player player3"></div>
+    </div>
+    <!-- Модальное окно кубика -->
+    <div id="diceModal" class="modal">
+        <div class="modal-content dice-modal-content">
+            <div id="diceDisplay" class="dice-display">
+                <div class="dice" id="dice1">🎲</div>
+            </div>
+            <div id="diceResult" class="dice-result"></div>
+            <button onclick="confirmDiceRoll()" class="modal-button" id="diceConfirmBtn" style="display:none">Использовать результат</button>
+            <button onclick="closeDiceModal()" class="modal-button" style="background:#666; margin-top:8px">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Модальное окно вопроса -->
+    <div id="questionModal" class="modal">
+        <div class="modal-content question-modal-content">
+            <div id="questionType" class="question-type-badge"></div>
+            <div id="questionText" class="question-text"></div>
+            <div id="questionRules" class="question-rules"></div>
+            <div class="question-buttons">
+                <button onclick="answerQuestion(true)" class="modal-button correct-btn">✅ Верно</button>
+                <button onclick="answerQuestion(false)" class="modal-button wrong-btn">❌ Неверно</button>
+                <button onclick="answerQuestion(null)" class="modal-button skip-q-btn">Пропустить</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <p id="modal-text">Вы попали на особую клетку!</p>
+            <button id="modal-ok" class="modal-button">OK</button>
+            <button id="modal-cancel" class="modal-button">Отмена</button>
+        </div>
+    </div>
+    <div id="playerMenu" class="player-menu">
+        <div class="player-menu-content">
+            <h3>Управление игроками</h3>
+            <div id="playersList" class="players-list">
+                <!-- Список игроков будет добавляться динамически -->
+            </div>
+            <div class="player-menu-controls">
+                <button onclick="addPlayer()" class="add-player-button">Добавить игрока</button>
+                <button onclick="togglePlayerMenu()" class="close-menu-button">Закрыть</button>
+            </div>
+        </div>
+    </div>
+    <div id="playerListCorner">
+        <button id="togglePlayerList" onclick="togglePlayerList()">Скрыть список игроков</button>
+        <div id="playerListContent"></div>
+    </div>
+    <div id="settingsMenu" class="settings-menu">
+        <div class="settings-content">
+            <h3>Настройки</h3>
+            <div class="settings-item">
+                <label>
+                    Скорость перемещения (мс)
+                    <select id="moveSpeed">
+                        <option value="100">Очень быстро (100мс)</option>
+                        <option value="300">Быстро (300мс)</option>
+                        <option value="500" selected>Нормально (500мс)</option>
+                        <option value="800">Медленно (800мс)</option>
+                        <option value="1000">Очень медленно (1000мс)</option>
+                    </select>
+                </label>
+            </div>
+            <div class="settings-group">
+                <h4>Специальные клетки</h4>
+                <div class="settings-item">
+                    <label>
+                        Клетки БЛИЦ (через запятую)
+                        <div class="input-with-button">
+                            <input type="text" id="blitzCells" class="cells-input">
+                            <button onclick="resetToDefault('blitz')" class="default-button">По умолчанию</button>
+                        </div>
+                    </label>
+                </div>
+                <div class="settings-item">
+                    <label>
+                        Клетки ВОПРОС (через запятую)
+                        <div class="input-with-button">
+                            <input type="text" id="questionCells" class="cells-input">
+                            <button onclick="resetToDefault('question')" class="default-button">По умолчанию</button>
+                        </div>
+                    </label>
+                </div>
+                <div class="settings-item">
+                    <label>
+                        Клетки ДУЭЛЬ (через запятую)
+                        <div class="input-with-button">
+                            <input type="text" id="duelCells" class="cells-input">
+                            <button onclick="resetToDefault('duel')" class="default-button">По умолчанию</button>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <div class="settings-item">
+                <label>
+                    <input type="checkbox" id="enableDuels" checked>
+                    Включить дуэли
+                </label>
+            </div>
+            <div class="settings-item">
+                <label>
+                    <input type="checkbox" id="enableQuestions" checked>
+                    Включить вопросы
+                </label>
+            </div>
+            <div class="settings-item">
+                <label>
+                    <input type="checkbox" id="enableBlitz" checked>
+                    Включить блиц
+                </label>
+            </div>
+            <button onclick="toggleSettings()" class="close-settings-button">Закрыть</button>
+        </div>
+    </div>
+    <script src="src/script.js"></script>
+</body>
+
+</html>
